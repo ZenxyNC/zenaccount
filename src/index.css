@@ -1,0 +1,86 @@
+@import 'tailwindcss';
+
+/*CSS resets*/
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+input {
+  outline: none;
+}
+
+:root {
+  --radius-outer: 28px;
+  --radius-inner: 12px;
+}
+
+@media screen and (min-width: 768px) {
+  :root {
+    --radius-outer: 32px;
+    --radius-inner: 12px;
+  }
+    h1 {
+    font-size: 36px;
+    font-weight: 700;
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 700;
+  }
+}
+
+@theme {
+  /*Colors*/
+  --color-primary: #0F131A;
+  --color-secondary: #171C23;
+  --color-accent: #007AFF;
+  --color-danger: #FF393D;
+
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: rgb(245, 245, 245, 0.4);
+
+  --color-border: rgb(245, 245, 245, 0.24);
+  
+  /*Radius*/
+  --radius-outer: var(--radius-outer);
+  --radius-inner: var(--radius-inner);
+  --radius-independent: 16px;
+
+  /*Responsive Size*/
+  --breakpoint-xs: 420px;
+  --breakpoint-sm: 500px;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+h2 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.purple-shadow {
+  box-shadow: 0px 0px 64px 3px #340056;
+}
+
+.pos-center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+html, body {
+  font-family: "PlusJakarta", sans-serif;
+  color: var(--color-text-primary);
+  background-color: var(--color-primary);
+}
+
+input {
+  font-family: "PlusJakarta", sans-serif;
+}
