@@ -14,7 +14,8 @@ export default function LoginProvider() {
   const [snackbar, setSnackbar] = useState({
     isOpened: false,
     message: "Hello world",
-    duration: 4000
+    duration: 4000,
+    onClose: null
   })
 
   const [searchParams] = useSearchParams();
@@ -97,6 +98,7 @@ export default function LoginProvider() {
             setSnackbar(prevSnackbar => ({
               ...prevSnackbar,
               isOpened: true,
+              duration: 3000,
               message: `Hello, ${userData.user.first_name}. Redirecting you to ${validAppOrigins[appOrigin.toLowerCase()] || "ZenAccount"}...`,
               onClose: () => {
                 if (appUrl) {
@@ -231,6 +233,7 @@ export default function LoginProvider() {
         <Snackbar
           message={snackbar.message}
           duration={snackbar.duration}
+          onClose={snackbar.onClose}
         />
       }
     </>
