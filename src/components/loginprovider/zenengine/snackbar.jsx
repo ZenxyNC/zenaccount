@@ -9,7 +9,9 @@ export default function Snackbar({ message, duration, onClose }) {
     const timer = setTimeout(() => {
       setVisible(false)
       const closeEvent = setTimeout(() => {
-        onClose()
+        if (onClose) {
+          onClose()
+        }
       }, 500);
       return () => clearTimeout(closeEvent);
     }, duration);

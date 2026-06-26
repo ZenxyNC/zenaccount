@@ -75,33 +75,57 @@ export default function LoginProvider() {
 
   async function handleLogin(ev) {
     ev.preventDefault();
-    const username = ev.target.username.value;
-    const password = passwordRef.current ? passwordRef.current.value : "";
-    const hashEngine = new hashProcessor(password).startengine();
 
-    if (hashEngine.ok) {
-      const userData = await getUserData("user", username);
-      if (userData.ok) {
-        const LocalStorageKey = `${appOrigin.toLowerCase()}-user-info`;
-        if (userData.user.password_hashed === hashEngine.object) {
-          localStorage.setItem(LocalStorageKey, JSON.stringify({
-            first_name: userData.user.first_name,
-            last_name: userData.user.last_name,
-            username: userData.user.username,
-            email: userData.user.email,
-            phone: userData.user.phone,
-          }))
-          setSnackbar(prevSnackbar => ({
-            ...prevSnackbar,
-            isOpened: true,
-            message: `Hello, ${userData.user.first_name}. Redirecting you to ${validAppOrigins[appOrigin.toLowerCase()] || "ZenAccount"}...`,
-          }))
+    try {
+      const username = ev.target.username.value;
+      const password = passwordRef.current ? passwordRef.current.value : "";
+      const hashEngine = new hashProcessor(password).startengine();
+
+      if (hashEngine.ok) {
+        const userData = await getUserData("user", username);
+        if (userData.ok) {
+          const LocalStorageKey = `${appOrigin.toLowerCase()}-user-info`;
+          if (userData.user.password_hashed === hashEngine.object) {
+            localStorage.setItem(LocalStorageKey, JSON.stringify({
+              first_name: userData.user.first_name,
+              last_name: userData.user.last_name,
+              username: userData.user.username,
+              email: userData.user.email,
+              phone: userData.user.phone,
+              password_hashed: userData.user.password_hashed
+            }))
+            setSnackbar(prevSnackbar => ({
+              ...prevSnackbar,
+              isOpened: true,
+              message: `Hello, ${userData.user.first_name}. Redirecting you to ${validAppOrigins[appOrigin.toLowerCase()] || "ZenAccount"}...`,
+              onClose: () => {
+                if (appUrl) {
+                  window.location.href = appUrl;
+                }
+              }
+            }))
+          } else {
+            throw new Error("Incorrect username or password.")
+          }
+        } else {
+          throw new Error("User not found.")
         }
       } else {
-
+        throw new Error(hashEngine.object)
       }
-    } else {
-      console.log(hashEngine)
+    } catch (err) {
+      setSnackbar({
+        isOpened: true,
+        message: err.message,
+        duration: 4000,
+        onClose: () => {
+          setSnackbar(prevSnackbar => ({
+            ...prevSnackbar,
+            isOpened: false,
+            onClose: null,
+          }))
+        }
+      })
     }
   }
 
@@ -207,15 +231,6 @@ export default function LoginProvider() {
         <Snackbar
           message={snackbar.message}
           duration={snackbar.duration}
-          onClose={() => {
-            setSnackbar(prevSnackbar => ({
-              ...prevSnackbar,
-              isOpened: false,
-            }))
-            if (appUrl) {
-              window.location.href = appUrl;
-            }
-          }}
         />
       }
     </>
