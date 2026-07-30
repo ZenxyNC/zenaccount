@@ -26,7 +26,8 @@ export default function LoginProvider() {
     "zenclock": "ZenClock",
     "zenengine": "ZenEngine",
     "zendocs": "ZenDocs",
-    "zenapps": "ZenApps"
+    "zenapps": "ZenApps",
+    "zenbase": "ZenBase",
   }
 
   const appOrigin = searchParams.get("appOrigin") || null;
