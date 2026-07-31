@@ -94,7 +94,8 @@ export default function LoginProvider() {
               username: userData.user.username,
               email: userData.user.email,
               phone: userData.user.phone,
-              password_hashed: userData.user.password_hashed
+              password_hashed: userData.user.password_hashed,
+              role: userData.user.role
             }))
             setSnackbar(prevSnackbar => ({
               ...prevSnackbar,
