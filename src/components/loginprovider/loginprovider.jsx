@@ -1,8 +1,8 @@
 import Lightfall from "../style-components/lightfall"
 import hashProcessor from "../security/zenguard-login/hashProcessor";
-import { getUserData } from "../db/getData";
+import { getApps, getUserData } from "../db/getData";
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useSearchParams } from "react-router-dom";
 
 // Icons
@@ -16,49 +16,40 @@ export default function LoginProvider() {
     message: "Hello world",
     duration: 4000,
     onClose: null
-  })
+  });
 
   const [searchParams] = useSearchParams();
-  const validAppOrigins = {
-    "zencore": "ZenCore",
-    "zencourse": "ZenCourse",
-    "zenguard": "ZenGuard",
-    "zenclock": "ZenClock",
-    "zenengine": "ZenEngine",
-    "zendocs": "ZenDocs",
-    "zenapps": "ZenApps",
-    "zenbase": "ZenBase",
-  }
-
-  const appOrigin = searchParams.get("appOrigin") || null;
-  const appUrl = appOrigin ? `https://zenxync.github.io/${appOrigin.toLowerCase()}` : null;
-
-  if (!appOrigin) {
-    return (
-      <ErrorFallback 
-        status="400"
-        title="Incomplete Request"
-        reason="ZenAccount couldn't verify where this request came from."
-      />
-    )
-  } else {
-    if(!validAppOrigins[appOrigin.toLowerCase()]) {
-      return (
-        <ErrorFallback 
-          status="400"
-          title="Invalid App Origin"
-          reason="This app is not connected to ZenApps."
-        />
-      )
-    } else {
-      document.title = `Login to ${validAppOrigins[appOrigin.toLowerCase()]} – ZenAccount`
-    }
-  }
+  const [validAppOrigins, setValidAppOrigins] = useState(null);
+  const [loadingOrigins, setLoadingOrigins] = useState(true);
 
   const passwordRef = useRef(null);
   const eyeIconRef = useRef(null);
   const eyeOffIconRef = useRef(null);
 
+  const appOrigin = searchParams.get("appOrigin") || null;
+  const appUrl = appOrigin ? `https://zenxync.github.io/${appOrigin.toLowerCase()}` : null;
+
+  useEffect(() => {
+    async function fetchOrigins() {
+      const fetchApps = await getApps();
+      if (fetchApps.ok) {
+        console.log("Apps fetched.");
+        console.log(fetchApps.data.record["zencore"]);
+        setValidAppOrigins(fetchApps.data.record);
+      } else {
+        console.log(fetchApps.message);
+        setValidAppOrigins(null);
+      }
+      setLoadingOrigins(false);
+    }
+    fetchOrigins();
+  }, []);
+
+  useEffect(() => {
+    if (appOrigin && validAppOrigins?.[appOrigin.toLowerCase()]) {
+      document.title = `Login to ${validAppOrigins[appOrigin.toLowerCase()].app_name} – ZenAccount`;
+    }
+  }, [appOrigin, validAppOrigins]);
 
   const togglePasswordVisibility = () => {
     if (passwordRef.current) {
@@ -73,7 +64,6 @@ export default function LoginProvider() {
       }
     }
   };
-
 
   async function handleLogin(ev) {
     ev.preventDefault();
@@ -101,7 +91,7 @@ export default function LoginProvider() {
               ...prevSnackbar,
               isOpened: true,
               duration: 3000,
-              message: `Hello, ${userData.user.first_name}. Redirecting you to ${validAppOrigins[appOrigin.toLowerCase()] || "ZenAccount"}...`,
+              message: `Hello, ${userData.user.first_name}. Redirecting you to ${validAppOrigins?.[appOrigin.toLowerCase()]?.app_name || "ZenAccount"}...`,
               onClose: () => {
                 if (appUrl) {
                   window.location.href = appUrl;
@@ -131,6 +121,31 @@ export default function LoginProvider() {
         }
       })
     }
+  }
+
+  // --- Early Returns (Must be placed AFTER all hooks) ---
+  if (loadingOrigins) {
+    return null;
+  }
+
+  if (!appOrigin) {
+    return (
+      <ErrorFallback 
+        status="400"
+        title="Incomplete Request"
+        reason="ZenAccount couldn't verify where this request came from."
+      />
+    );
+  }
+
+  if (!validAppOrigins?.[appOrigin.toLowerCase()]) {
+    return (
+      <ErrorFallback 
+        status="400"
+        title="Invalid App Origin"
+        reason="This app is not connected to ZenApps."
+      />
+    );
   }
 
   return (
@@ -165,7 +180,9 @@ export default function LoginProvider() {
         md:max-w-md
       ">
         <h1 className="text-center pointer-events-auto">Welcome Back!</h1>
-        <span className="block text-center text-text-secondary text-[14px] pointer-events-auto">Sign in to { appOrigin && validAppOrigins[appOrigin.toLowerCase()] ? validAppOrigins[appOrigin.toLowerCase()] : "ZenAccount"}</span>
+        <span className="block text-center text-text-secondary text-[14px] pointer-events-auto">
+          Sign in to { appOrigin && validAppOrigins[appOrigin.toLowerCase()] ? validAppOrigins[appOrigin.toLowerCase()].app_name : "ZenAccount"}
+        </span>
 
         <form
           className="mt-5 flex flex-col gap-4 relative pointer-events-none"

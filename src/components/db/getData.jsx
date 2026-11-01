@@ -1,4 +1,5 @@
 const URL = import.meta.env.VITE_JSONBIN_URL
+const AppsURL = import.meta.env.VITE_JSONBIN_APPS_URL
 const MASTERKEY = import.meta.env.VITE_JSONBIN_MASTER_KEY
 
 export async function getUserData(type, username) {
@@ -59,6 +60,27 @@ export async function getDB() {
 
     if (!response.ok) {
       throw new Error("Failed to fetch user data");
+    }
+
+    const data = await response.json();
+    return { ok: true, data: data };
+  } catch(err) {
+    return { ok: false, message: err.message || err };
+  }
+}
+
+export async function getApps() {
+  try {
+    const response = await fetch(AppsURL, {
+      method: "GET",
+      headers: {
+        'Content-Type': 'application/json',
+        "X-Master-Key": MASTERKEY
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch apps data");
     }
 
     const data = await response.json();
