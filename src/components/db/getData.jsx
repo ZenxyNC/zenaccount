@@ -1,6 +1,7 @@
 const URL = import.meta.env.VITE_JSONBIN_URL
 const AppsURL = import.meta.env.VITE_JSONBIN_APPS_URL
 const MASTERKEY = import.meta.env.VITE_JSONBIN_MASTER_KEY
+const AllowFetchAPIs = true;
 
 export async function getUserData(type, username) {
   if (!URL || !MASTERKEY) {
@@ -17,7 +18,7 @@ export async function getUserData(type, username) {
     });
 
     if (!response.ok) {
-      throw new Error("Failed to fetch user data");
+      throw new Error("Failed to fetch user data.");
     }
 
     const data = await response.json();
@@ -30,14 +31,14 @@ export async function getUserData(type, username) {
       if (user) {
         return { ok: true, user: user };
       } else {
-        return { ok: false, message: "User not found" };
+        return { ok: false, message: "User not found." };
       }
     } else if (type === "all") {
       // Return all users
       return { ok: true, users: users };
     } else {
       // Fallback
-      return { ok: false, message: "Invalid type" };
+      return { ok: false, message: "Invalid type." };
     }
   } catch(err) {
     // Error handler
@@ -70,6 +71,8 @@ export async function getDB() {
 }
 
 export async function getApps() {
+  if(!AllowFetchAPIs) return { ok: true, data: { record: {"zenschola": { "app_name": "ZenSchola", "app_url": "https://zenxync.github.io/zenschola", "app_icon_url": "https://raw.githubusercontent.com/ZenxyNC/zendocs/refs/heads/main/public/resources/AppIcon/ZenSchola.png" }} } }
+
   try {
     const response = await fetch(AppsURL, {
       method: "GET",

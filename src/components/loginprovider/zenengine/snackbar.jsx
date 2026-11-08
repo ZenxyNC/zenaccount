@@ -19,7 +19,7 @@ export default function Snackbar({ message, duration, onClose }) {
   }, [message]);
 
   return (
-    <div className={`purple-shadow snackbar ${visible ? 'show' : ''}`}>
+    <div className={`snackbar ${visible ? 'show' : ''}`}>
       {message}
     </div>
   );
