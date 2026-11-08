@@ -28,6 +28,7 @@ export default function LoginProvider() {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const appOrigin = searchParams.get("appOrigin") || null;
+  const appUrl = appOrigin ? `https://zenxync.github.io/${appOrigin.toLowerCase()}` : null;
 
   useEffect(() => {
     async function fetchOrigins() {
